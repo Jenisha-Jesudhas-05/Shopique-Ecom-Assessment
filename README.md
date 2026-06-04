@@ -30,6 +30,27 @@ This project follows Clean Architecture and MVVM principles to ensure maintainab
 - Back navigation support.
 
 ---
+## 📱 Application Screens
+
+<div align="center">
+
+<table>
+<tr>
+<td align="center">
+<h3>Product Listing Screen</h3>
+<img src="https://github.com/user-attachments/assets/233f81f5-ecf6-446b-a215-4bcb2587fc5d" width="250" alt="Product Listing Screen"/>
+</td>
+
+<td align="center">
+<h3>Product Detail Screen</h3>
+<img src="https://github.com/user-attachments/assets/eb31a9ff-1a39-4ab7-8bb1-46d72d088035" width="250" alt="Product Detail Screen"/>
+</td>
+</tr>
+</table>
+
+</div>
+
+---
 
 ## API Used
 
@@ -180,44 +201,79 @@ StateFlow is used to manage UI states.
 
 ---
 
-## Testing
+## 🧪 Testing
 
-Unit tests are implemented for:
+The application includes comprehensive unit tests to ensure reliability and correctness across different layers of the architecture.
 
-### Repository
-- API Success Response
-- API Error Response
+### Repository Tests
 
-### Use Cases
-- GetProductsUseCase
-- GetProductByIdUseCase
+* API Success Response Validation
+* API Error Response Handling
+* Data Mapping Verification
 
-### ViewModels
-- Loading State Validation
-- Success State Validation
-- Error State Validation
+### Use Case Tests
+
+* GetProductsUseCase
+* GetProductByIdUseCase
+* Business Logic Validation
+
+### ViewModel Tests
+
+* Loading State Validation
+* Success State Validation
+* Error State Validation
+* StateFlow Emission Verification
+
+### Test Coverage
+
+✅ Repository Layer
+
+✅ Use Case Layer
+
+✅ ViewModel Layer
+
+✅ API Success Scenarios
+
+✅ API Failure Scenarios
+
+✅ UI State Management
 
 ---
-## 📱 Application Screens
+
+## 📸 Unit Test Results
 
 <div align="center">
 
 <table>
 <tr>
 <td align="center">
-<h3>Product Listing Screen</h3>
-<img src="https://github.com/user-attachments/assets/233f81f5-ecf6-446b-a215-4bcb2587fc5d" width="250" alt="Product Listing Screen"/>
+<b>Repository Tests</b><br><br>
+<img width="1152" height="468" alt="Screenshot 2026-06-04 at 12 39 50 PM" src="https://github.com/user-attachments/assets/08632de4-2955-4192-800f-f721ac1e523f" />
 </td>
+</tr>
 
+<tr>
 <td align="center">
-<h3>Product Detail Screen</h3>
-<img src="https://github.com/user-attachments/assets/eb31a9ff-1a39-4ab7-8bb1-46d72d088035" width="250" alt="Product Detail Screen"/>
+<b>ViewModel Tests</b><br><br>
+<img width="2302" height="890" alt="image" src="https://github.com/user-attachments/assets/dfaf6a26-56b6-4b15-a716-b634ea3b1dea" />
+</td>
+</tr>
+
+<tr>
+<td align="center">
+<b>All Tests Passed</b><br><br>
+<img width="2278" height="934" alt="image" src="https://github.com/user-attachments/assets/acf61842-d58e-4a23-a95e-042d0262fcd3" />
+<img width="2324" height="888" alt="image" src="https://github.com/user-attachments/assets/12ee59ce-fc88-4936-ac4a-7b48f6f576e0" />
 </td>
 </tr>
 </table>
 
 </div>
 
+**Result:** All implemented unit test cases executed successfully and passed.
+
+
+---
 
 ## Future Enhancements
 
