@@ -61,7 +61,7 @@ class ProductListViewModelTest {
         Dispatchers.resetMain()
     }
 
-    // ✅ Requirement: Products displayed in LazyColumn
+    //  Requirement: Products displayed in LazyColumn
     @Test
     fun `state has products for LazyColumn display`() = runTest {
         whenever(getProductsUseCase())

@@ -12,29 +12,37 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
+
     primary = PrimaryPurple,
-    secondary = AccentTeal,
+    secondary = PrimaryPurple,
     tertiary = DeepIndigo,
+
     background = DeepIndigo,
     surface = DeepIndigo,
+
     onPrimary = CardWhite,
     onSecondary = CardWhite,
     onTertiary = CardWhite,
+
     onBackground = CardWhite,
-    onSurface = CardWhite,
+    onSurface = CardWhite
 )
 
 private val LightColorScheme = lightColorScheme(
+
     primary = PrimaryPurple,
-    secondary = AccentTeal,
+    secondary = PrimaryPurple,
     tertiary = DeepIndigo,
+
     background = BackgroundGray,
     surface = CardWhite,
+
     onPrimary = CardWhite,
     onSecondary = CardWhite,
     onTertiary = CardWhite,
+
     onBackground = TextDark,
-    onSurface = TextDark,
+    onSurface = TextDark
 )
 
 @Composable
@@ -42,19 +50,32 @@ fun ShopiqueTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+
+    val colorScheme =
+        if (darkTheme) DarkColorScheme
+        else LightColorScheme
+
     val view = LocalView.current
+
     if (!view.isInEditMode) {
+
         SideEffect {
+
             val window = (view.context as Activity).window
+
             window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+
+            WindowCompat.getInsetsController(
+                window,
+                view
+            ).isAppearanceLightStatusBars = !darkTheme
         }
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = Shapes,
         content = content
     )
 }

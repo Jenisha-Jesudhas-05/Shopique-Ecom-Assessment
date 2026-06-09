@@ -1,5 +1,6 @@
 package com.example.shopique.presentation.productlist
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -38,6 +40,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -46,6 +49,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.shopique.R
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,26 +70,42 @@ fun ProductListScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Column {
-                        Text(
-                            text = "Shopique",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color.White
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Image(
+                            painter = painterResource(id = R.drawable.shopique_logo),
+                            contentDescription = "Shopique Logo",
+                            modifier = Modifier.size(60.dp)
                         )
-                        Text(
-                            text = "Find your perfect style",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White.copy(alpha = 0.8f)
-                        )
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Column {
+
+                            Text(
+                                text = "SHOPIQUE",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.surface
+                            )
+
+                            Text(
+                                text = "Smart Shopping Experience",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF1E1E2E)
+                    containerColor = Color(0xFF6C63FF)
                 )
             )
         },
-        containerColor = Color(0xFFF5F5F7)
+
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
 
         Box(
@@ -89,19 +116,34 @@ fun ProductListScreen(
             // Loading State
             if (state.isLoading) {
                 Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.onSurface),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
+
+                    Image(
+                        painter = painterResource(R.drawable.shopique_logo),
+                        contentDescription = null,
+                        modifier = Modifier.size(140.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
                     CircularProgressIndicator(
                         color = Color(0xFF6C63FF)
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     Text(
-                        text = "Loading products...",
-                        color = Color(0xFF6C63FF),
-                        style = MaterialTheme.typography.bodyMedium
+                        text = "Loading Shopique...",
+                        color = MaterialTheme.colorScheme.surface
                     )
                 }
+
+                return@Scaffold
             }
 
             // Error State
@@ -109,38 +151,159 @@ fun ProductListScreen(
                 Column(
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .padding(16.dp),
+                        .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+
                     Text(
                         text = "⚠️",
                         fontSize = 48.sp
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
                     Text(
-                        text = state.error,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium
+                        text = "Unable to load products",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "Please check your connection and try again.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 }
             }
-
             // Success State
             if (state.products.isNotEmpty()) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+
+                val categories = listOf("All") +
+                        state.products.map { it.category }.distinct()
+
+                Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(state.products) { product ->
-                        ProductGridItem(
-                            title = product.title,
-                            price = product.price,
-                            thumbnail = product.thumbnail,
-                            onProductClick = { onProductClick(product.id) }
+
+                    OutlinedTextField(
+                        value = state.searchQuery,
+                        onValueChange = {
+                            viewModel.onSearchQueryChange(it)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        placeholder = {
+                            Text(
+                                text = "Search products...",
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface
                         )
+                    )
+                    Text(
+                        text = "${state.filteredProducts.size} Products Available",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(
+                            start = 16.dp,
+                            end = 16.dp,
+                            bottom = 8.dp
+                        )
+                    )
+
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(categories) { category ->
+
+                            FilterChip(
+                                selected = state.selectedCategory == category,
+                                onClick = {
+                                    viewModel.onCategorySelected(category)
+                                },
+                                label = {
+                                    Text(
+                                        text = category.replaceFirstChar { it.uppercase() }
+                                    )
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                                    selectedLabelColor = MaterialTheme.colorScheme.primary,
+                                    containerColor = MaterialTheme.colorScheme.surface,
+                                    labelColor = MaterialTheme.colorScheme.onSurface
+                                )
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (
+                        state.filteredProducts.isEmpty() &&
+                        state.searchQuery.isNotBlank()
+                    ) {
+
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+
+                            Text(
+                                text = "🔍 No products found",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                text = "Try another search keyword",
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        }
+
+                    } else {
+
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            contentPadding = PaddingValues(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(state.filteredProducts) { product ->
+
+                                ProductGridItem(
+                                    title = product.title,
+                                    price = product.price,
+                                    thumbnail = product.thumbnail,
+                                    onProductClick = {
+                                        onProductClick(product.id)
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -162,7 +325,7 @@ fun ProductGridItem(
             .shadow(6.dp, RoundedCornerShape(16.dp))
             .clickable { onProductClick() },
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -188,14 +351,14 @@ fun ProductGridItem(
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
                         .background(
-                            color = Color(0xFF6C63FF),
+                            color = MaterialTheme.colorScheme.primary,
                             shape = RoundedCornerShape(8.dp)
                         )
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = "$$price",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp
                     )
@@ -207,15 +370,14 @@ fun ProductGridItem(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(10.dp),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
+             ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = Color(0xFF1E1E2E)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 // Bottom Row

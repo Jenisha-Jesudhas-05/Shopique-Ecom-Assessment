@@ -1,5 +1,6 @@
 package com.example.shopique.presentation.productdetail
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -20,15 +21,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.shopique.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,14 +44,40 @@ fun ProductDetailScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "Product Details",
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Image(
+                            painter = painterResource(id = R.drawable.shopique_logo),
+                            contentDescription = "Shopique Logo",
+                            modifier = Modifier.size(60.dp)
+                        )
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Column {
+
+                            Text(
+                                text = "SHOPIQUE",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.surface
+                            )
+
+                            Text(
+                                text = "Product Details",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
                 },
+
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(
+                        onClick = onBackClick
+                    ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
@@ -57,15 +85,16 @@ fun ProductDetailScreen(
                         )
                     }
                 },
+
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF1E1E2E)
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             )
         },
         bottomBar = {
             if (state.product != null) {
                 BottomAppBar(
-                    containerColor = Color.White,
+                    containerColor = MaterialTheme.colorScheme.surface,
                     contentPadding = PaddingValues(16.dp),
                     tonalElevation = 8.dp
                 ) {
@@ -82,7 +111,7 @@ fun ProductDetailScreen(
                         Icon(Icons.Default.ShoppingCart, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Add to Cart • $${state.product?.price}",
+                            text = "Add to Cart",
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )
@@ -90,7 +119,7 @@ fun ProductDetailScreen(
                 }
             }
         },
-        containerColor = Color(0xFFF5F5F7)
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
 
         Box(
@@ -100,22 +129,64 @@ fun ProductDetailScreen(
         ) {
             // Loading State
             if (state.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color(0xFF6C63FF)
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.onSurface),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+
+                    Image(
+                        painter = painterResource(R.drawable.shopique_logo),
+                        contentDescription = null,
+                        modifier = Modifier.size(140.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    CircularProgressIndicator(
+                        color = Color(0xFF6C63FF)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Loading Shopique...",
+                        color = MaterialTheme.colorScheme.surface
+                    )
+                }
+
+                return@Scaffold
             }
 
-            // Error State
             if (state.error.isNotEmpty()) {
-                Text(
-                    text = state.error,
-                    color = MaterialTheme.colorScheme.error,
+                Column(
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .padding(16.dp),
-                    textAlign = TextAlign.Center
-                )
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    Text(
+                        text = "⚠️",
+                        fontSize = 48.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "Unable to load product",
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "Please try again later.",
+                        color = Color.Gray
+                    )
+                }
             }
 
             // Success State
@@ -136,7 +207,7 @@ fun ProductDetailScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         shape = RoundedCornerShape(24.dp),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         shadowElevation = 2.dp
                     ) {
                         Column(
@@ -154,17 +225,29 @@ fun ProductDetailScreen(
                                     fontWeight = FontWeight.Bold
                                 )
                                 Surface(
-                                    color = Color(0xFFF5F5F7),
+                                    color = MaterialTheme.colorScheme.background,
                                     shape = RoundedCornerShape(8.dp)
                                 ) {
                                     Text(
-                                        text = "In Stock",
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                        text = "Available",
+                                        modifier = Modifier.padding(
+                                            horizontal = 8.dp,
+                                            vertical = 4.dp
+                                        ),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = Color(0xFF10B981)
                                     )
                                 }
                             }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                text = "$${String.format("%.0f", product.price)}",
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = Color(0xFF6C63FF),
+                                fontWeight = FontWeight.Bold
+                            )
 
                             Spacer(modifier = Modifier.height(12.dp))
 
@@ -172,16 +255,16 @@ fun ProductDetailScreen(
                                 text = product.title,
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.ExtraBold,
-                                color = Color(0xFF1E1E2E)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
 
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Text(
-                                text = "Description",
+                                text = "Product Overview",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF1E1E2E)
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -189,14 +272,14 @@ fun ProductDetailScreen(
                             Text(
                                 text = product.description,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color(0xFF6B7280),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                                 lineHeight = 22.sp
                             )
-                            
+
                             Spacer(modifier = Modifier.height(32.dp))
                         }
                     }
-                    
+
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             }
@@ -212,7 +295,7 @@ fun ImageCarousel(images: List<String>) {
         modifier = Modifier
             .fillMaxWidth()
             .height(350.dp)
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
         HorizontalPager(
             state = pagerState,
