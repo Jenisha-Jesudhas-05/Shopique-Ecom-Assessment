@@ -1,43 +1,40 @@
 package com.example.shopique.presentation.productlist
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -50,62 +47,88 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.shopique.R
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+// Index of the product grid section inside the LazyColumn
+private const val PRODUCT_GRID_INDEX = 6
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductListScreen(
+    onCartClick: () -> Unit,
+    onWishlistClick: () -> Unit,
+    onProfileClick: () -> Unit,
     onProductClick: (Int) -> Unit,
-    viewModel: ProductListViewModel = hiltViewModel()
+    viewModel: ProductListViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+                    Surface(
+                        color = Color.White.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .padding(vertical = 4.dp)
+                            .shadow(elevation = 0.dp) // Clean minimalist look
                     ) {
-
-                        Image(
-                            painter = painterResource(id = R.drawable.shopique_logo),
-                            contentDescription = "Shopique Logo",
-                            modifier = Modifier.size(60.dp)
-                        )
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Column {
-
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_shopique_logo_vector),
+                                contentDescription = "Shopique Logo",
+                                modifier = Modifier.size(24.dp),
+                                tint = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = "SHOPIQUE",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.surface
-                            )
-
-                            Text(
-                                text = "Smart Shopping Experience",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = 2.sp,
+                                color = Color.White
                             )
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF6C63FF)
+                actions = {
+                    Row(modifier = Modifier.padding(end = 4.dp)) {
+                        IconButton(onClick = onProfileClick) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Profile",
+                                tint = Color.White
+                            )
+                        }
+                        IconButton(onClick = onWishlistClick) {
+                            Icon(
+                                imageVector = Icons.Default.Favorite,
+                                contentDescription = "Wishlist",
+                                tint = Color.White
+                            )
+                        }
+                        IconButton(onClick = onCartClick) {
+                            Icon(
+                                imageVector = Icons.Default.ShoppingCart,
+                                contentDescription = "Cart",
+                                tint = Color.White
+                            )
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             )
         },
-
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = Color(0xFFF8F9FE)
     ) { paddingValues ->
 
         Box(
@@ -113,195 +136,270 @@ fun ProductListScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Loading State
-            if (state.isLoading) {
+            // ── Loading State ──────────────────────────────────────────────────
+            AnimatedVisibility(
+                visible = state.isLoading,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.onSurface),
+                        .background(Color.White),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-
-                    Image(
-                        painter = painterResource(R.drawable.shopique_logo),
+                    val infiniteTransition = rememberInfiniteTransition(label = "")
+                    val scale by infiniteTransition.animateFloat(
+                        initialValue = 0.8f,
+                        targetValue = 1.1f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(1000, easing = FastOutSlowInEasing),
+                            repeatMode = RepeatMode.Reverse
+                        ), label = ""
+                    )
+                    
+                    Icon(
+                        painter = painterResource(R.drawable.ic_shopique_logo_vector),
                         contentDescription = null,
-                        modifier = Modifier.size(140.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    CircularProgressIndicator(
-                        color = Color(0xFF6C63FF)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = "Loading Shopique...",
-                        color = MaterialTheme.colorScheme.surface
-                    )
-                }
-
-                return@Scaffold
-            }
-
-            // Error State
-            if (state.error.isNotEmpty()) {
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-
-                    Text(
-                        text = "⚠️",
-                        fontSize = 48.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(
-                        text = "Unable to load products",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "Please check your connection and try again.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                }
-            }
-            // Success State
-            if (state.products.isNotEmpty()) {
-
-                val categories = listOf("All") +
-                        state.products.map { it.category }.distinct()
-
-                Column(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-
-                    OutlinedTextField(
-                        value = state.searchQuery,
-                        onValueChange = {
-                            viewModel.onSearchQueryChange(it)
-                        },
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                        placeholder = {
-                            Text(
-                                text = "Search products...",
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "Search",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        },
-                        singleLine = true,
-                        shape = RoundedCornerShape(14.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                        )
+                            .size(100.dp)
+                            .scale(scale),
+                        tint = MaterialTheme.colorScheme.primary
                     )
-                    Text(
-                        text = "${state.filteredProducts.size} Products Available",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                        modifier = Modifier.padding(
-                            start = 16.dp,
-                            end = 16.dp,
-                            bottom = 8.dp
-                        )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = 3.dp,
+                        modifier = Modifier.size(32.dp)
                     )
+                }
+            }
 
-                    LazyRow(
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(categories) { category ->
+            // ── Main Content ───────────────────────────────────────────────────
+            if (state.products.isNotEmpty()) {
+                val categories = listOf("All") + state.products.map { it.category }.distinct()
+                val featuredProducts = remember(state.products) { state.products.shuffled().take(5) }
+                val pagerState = rememberPagerState(pageCount = { featuredProducts.size })
 
-                            FilterChip(
-                                selected = state.selectedCategory == category,
-                                onClick = {
-                                    viewModel.onCategorySelected(category)
-                                },
-                                label = {
-                                    Text(
-                                        text = category.replaceFirstChar { it.uppercase() }
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        delay(4000)
+                        if (pagerState.pageCount > 0) {
+                            pagerState.animateScrollToPage((pagerState.currentPage + 1) % pagerState.pageCount)
+                        }
+                    }
+                }
+
+                val productRows = remember(state.filteredProducts) {
+                    state.filteredProducts.chunked(2)
+                }
+
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 24.dp)
+                ) {
+
+                    // 0 ── Hero Banner (Dynamic & Glassy)
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .height(160.dp)
+                                .clip(RoundedCornerShape(24.dp))
+                                .background(
+                                    Brush.horizontalGradient(
+                                        colors = listOf(
+                                            MaterialTheme.colorScheme.primary,
+                                            MaterialTheme.colorScheme.secondary
+                                        )
                                     )
+                                )
+                        ) {
+                            // Abstract decorative shapes
+                            Box(
+                                modifier = Modifier
+                                    .size(150.dp)
+                                    .offset(x = 220.dp, y = (-40).dp)
+                                    .background(Color.White.copy(alpha = 0.1f), CircleShape)
+                            )
+                            
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(24.dp),
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "Premium Style",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = Color.White.copy(alpha = 0.8f),
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Summer Collection '24",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color.White
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Button(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            listState.animateScrollToItem(PRODUCT_GRID_INDEX)
+                                        }
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                                    shape = RoundedCornerShape(12.dp),
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+                                ) {
+                                    Text("Shop Now", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
+
+                    // 1 ── Search Bar (Sleek & Clean)
+                    item {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            color = Color.White,
+                            shadowElevation = 2.dp
+                        ) {
+                            TextField(
+                                value = state.searchQuery,
+                                onValueChange = { viewModel.onSearchQueryChange(it) },
+                                placeholder = { Text("What are you looking for?", color = Color.Gray) },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                                 },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                                    selectedLabelColor = MaterialTheme.colorScheme.primary,
-                                    containerColor = MaterialTheme.colorScheme.surface,
-                                    labelColor = MaterialTheme.colorScheme.onSurface
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent,
+                                    disabledContainerColor = Color.Transparent,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
                                 )
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    if (
-                        state.filteredProducts.isEmpty() &&
-                        state.searchQuery.isNotBlank()
-                    ) {
-
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                    // 3 ── Category Selection (Pills)
+                    item {
+                        LazyRow(
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-
-                            Text(
-                                text = "🔍 No products found",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "Try another search keyword",
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                            )
-                        }
-
-                    } else {
-
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            contentPadding = PaddingValues(12.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            items(state.filteredProducts) { product ->
-
-                                ProductGridItem(
-                                    title = product.title,
-                                    price = product.price,
-                                    thumbnail = product.thumbnail,
-                                    onProductClick = {
-                                        onProductClick(product.id)
-                                    }
+                            items(categories) { category ->
+                                val isSelected = state.selectedCategory == category
+                                val bgColor by animateColorAsState(
+                                    if (isSelected) MaterialTheme.colorScheme.primary else Color.White,
+                                    label = ""
                                 )
+                                val textColor by animateColorAsState(
+                                    if (isSelected) Color.White else Color.DarkGray,
+                                    label = ""
+                                )
+                                
+                                Surface(
+                                    onClick = { viewModel.onCategorySelected(category) },
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = bgColor,
+                                    shadowElevation = if (isSelected) 4.dp else 1.dp,
+                                    modifier = Modifier.animateContentSize()
+                                ) {
+                                    Text(
+                                        text = category.replaceFirstChar { it.uppercase() },
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                        color = textColor
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // 4 ── Featured Title
+                    item {
+                        SectionHeader(title = "Featured Highlights")
+                    }
+
+                    // 5 ── Featured Pager
+                    item {
+                        Column {
+                            HorizontalPager(
+                                state = pagerState,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                contentPadding = PaddingValues(horizontal = 16.dp),
+                                pageSpacing = 12.dp
+                            ) { page ->
+                                val product = featuredProducts[page]
+                                FeaturedCard(
+                                    product = product,
+                                    onClick = { onProductClick(product.id) }
+                                )
+                            }
+
+                            // Dot Indicator
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 12.dp),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                repeat(featuredProducts.size) { index ->
+                                    val isSelected = pagerState.currentPage == index
+                                    val width by animateDpAsState(if (isSelected) 24.dp else 6.dp, label = "")
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(horizontal = 3.dp)
+                                            .height(6.dp)
+                                            .width(width)
+                                            .clip(CircleShape)
+                                            .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    item { 
+                        Spacer(modifier = Modifier.height(24.dp))
+                        SectionHeader(title = "All Products") 
+                    }
+
+                    // 7 ── Products Grid
+                    if (state.filteredProducts.isEmpty() && state.searchQuery.isNotBlank()) {
+                        item {
+                            EmptySearchState()
+                        }
+                    } else {
+                        items(productRows) { row ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                row.forEach { product ->
+                                    Box(modifier = Modifier.weight(1f)) {
+                                        EnhancedProductItem(
+                                            product = product,
+                                            onProductClick = { onProductClick(product.id) }
+                                        )
+                                    }
+                                }
+                                if (row.size == 1) Spacer(modifier = Modifier.weight(1f))
                             }
                         }
                     }
@@ -312,94 +410,165 @@ fun ProductListScreen(
 }
 
 @Composable
-fun ProductGridItem(
-    title: String,
-    price: Double,
-    thumbnail: String,
-    onProductClick: () -> Unit
-) {
-    Card(
+fun SectionHeader(title: String) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(250.dp)
-            .shadow(6.dp, RoundedCornerShape(16.dp))
-            .clickable { onProductClick() },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // Product Image
-            Box {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(thumbnail)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = title,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp)
-                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Black,
+            color = Color(0xFF1A1A1A)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = "See All",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
 
-                // Price Badge
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = "$$price",
-                        color = MaterialTheme.colorScheme.surface,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp
-                    )
-                }
-            }
-
-            // Product Info
-            Column(
+@Composable
+fun FeaturedCard(product: com.example.shopique.domain.model.Product, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable { onClick() },
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(product.thumbnail)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(10.dp),
-             ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                // Bottom Row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "View Details",
-                        fontSize = 11.sp,
-                        color = Color(0xFF6C63FF),
-                        fontWeight = FontWeight.Medium
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))
+                        )
                     )
+            )
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(16.dp)
+            ) {
+                Text(product.title, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1)
+                Text("$${product.price}", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.labelMedium)
+            }
+        }
+    }
+}
+
+@Composable
+fun EnhancedProductItem(
+    product: com.example.shopique.domain.model.Product,
+    onProductClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onProductClick() }
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(0.85f),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(product.thumbnail)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(12.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop
+                )
+                
+                // Favorite Badge
+                Surface(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .size(32.dp)
+                        .align(Alignment.TopEnd),
+                    shape = CircleShape,
+                    color = Color.White.copy(alpha = 0.9f),
+                    shadowElevation = 2.dp
+                ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        imageVector = Icons.Default.Favorite,
                         contentDescription = null,
-                        tint = Color(0xFF6C63FF),
-                        modifier = Modifier.size(14.dp)
+                        tint = Color.LightGray,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .size(16.dp)
                     )
                 }
             }
         }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Text(
+            text = product.title,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "$${product.price}",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Black
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Icon(
+                Icons.Default.Star,
+                contentDescription = null,
+                tint = Color(0xFFFFB400),
+                modifier = Modifier.size(14.dp)
+            )
+            Text(
+                text = " 4.5",
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.Gray
+            )
+        }
+    }
+}
+
+@Composable
+fun EmptySearchState() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(48.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(64.dp), tint = Color.LightGray)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("No items match your search", fontWeight = FontWeight.Bold, color = Color.Gray)
     }
 }

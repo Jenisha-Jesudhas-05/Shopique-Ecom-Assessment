@@ -1,19 +1,17 @@
 package com.example.shopique.ui.theme
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 
-val DeepIndigo = Color(0xFF1E1E2E)
+val Charcoal = Color(0xFF2D2D2D)
+val RoseGold = Color(0xFFE5B1A1)
+val RoseGoldDark = Color(0xFFC98C7D)
 
-val PrimaryPurple = Color(0xFF6C63FF)
-
-val BackgroundGray = Color(0xFFF7F8FA)
+val Champagne = Color(0xFFF9F1EF)
+val BackgroundGray = Color(0xFFF8F8F8)
 val CardWhite = Color(0xFFFFFFFF)
 
-val TextDark = Color(0xFF111827)
-val TextGray = Color(0xFF6B7280)
+val TextDark = Color(0xFF1A1A1A)
+val TextGray = Color(0xFF757575)
 
-val BorderLight = Color(0xFFE5E7EB)
-
-val SuccessGreen = Color(0xFF10B981)
-val ErrorRed = Color(0xFFEF4444)
+val SuccessGreen = Color(0xFF81B29A)
+val ErrorRed = Color(0xFFE07A5F)

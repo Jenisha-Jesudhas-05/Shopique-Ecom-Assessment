@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import com.example.shopique.navigation.NavGraph
 import com.example.shopique.ui.theme.ShopiqueTheme
 import dagger.hilt.android.AndroidEntryPoint
-
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 

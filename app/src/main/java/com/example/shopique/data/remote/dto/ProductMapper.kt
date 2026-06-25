@@ -8,8 +8,8 @@ fun ProductDto.toDomain(): Product {
         title = title,
         price = price,
         description = description,
-        images = images,
-        thumbnail = images.firstOrNull() ?: "",
-        category = category.name
+        images = listOf(image),
+        thumbnail = image,
+        category = category
     )
 }

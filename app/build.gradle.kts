@@ -34,7 +34,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    // ✅ Fix for deprecated kotlinOptions
     kotlin {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
@@ -77,6 +76,24 @@ dependencies {
 
     // Coil
     implementation(libs.coil.compose)
+
+    implementation("androidx.compose.foundation:foundation")
+
+    // Room
+    implementation("androidx.room:room-runtime:2.7.2")
+    implementation("androidx.room:room-ktx:2.7.2")
+    kapt("androidx.room:room-compiler:2.7.2")
+
+    // Security
+    implementation("androidx.security:security-crypto:1.1.0")
+
+    // Paging
+    implementation("androidx.paging:paging-runtime-ktx:3.3.6")
+    implementation("androidx.paging:paging-compose:3.3.6")
+
+    // Maps
+    implementation("com.google.maps.android:maps-compose:4.3.3")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
 
     // Testing
     testImplementation(libs.junit)

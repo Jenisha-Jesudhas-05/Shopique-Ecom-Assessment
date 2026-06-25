@@ -11,17 +11,17 @@ data class ProductDto(
     val price: Double,
     @SerializedName("description")
     val description: String,
-    @SerializedName("images")
-    val images: List<String>,
+    @SerializedName("image")
+    val image: String,
     @SerializedName("category")
-    val category: CategoryDto
+    val category: String,
+    @SerializedName("rating")
+    val rating: RatingDto? = null
 )
 
-data class CategoryDto(
-    @SerializedName("id")
-    val id: Int,
-    @SerializedName("name")
-    val name: String,
-    @SerializedName("image")
-    val image: String
+data class RatingDto(
+    @SerializedName("rate")
+    val rate: Double,
+    @SerializedName("count")
+    val count: Int
 )
